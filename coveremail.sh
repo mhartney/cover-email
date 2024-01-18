@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Change working directory.
-cd /lucas/ilm/home/mhartney/Documents/email_drafts/cover_email/
+cd /path/to/working/directory
 
 # Find outgoing folder.
-input_folder=$(zenity --file-selection --title FOO --directory --filename /lucas/ilm/show/paradox/staging/outgoing/to_client/)
+input_folder=$(zenity --file-selection --title FOO --directory --filename /lucas/ilm/show/paradox/staging/outgoing/to_client)
 
 # Remove trailing slash if exists from filepath.
 if [[ $input_folder == */ ]]; then
@@ -20,8 +20,7 @@ LIST=$(seqtree "$input_path" | sed '1d' | grep -Ev '\.csv$')
 MONTH=$(date +"%Y.%m") ; DAY=$(date +"%Y.%m.%d") ; DATE=$(date +"%Y%m%d")
 
 # This program will determine if this input path is a simple MOVs send for review, a tech check send or
-# a send for Harbor. It will generate the email blurb I need for both and then all else failing will
-# summarise what the package is or give me an option to input note.
+# a send for Harbor. It will generate the email blurb I need for both.
 
 # Use this expression pattern to check if the package is a Harbor send.
 pattern="^[0-9]{8}_pdx_ilm_0[0-9]{2}$"
@@ -34,10 +33,10 @@ fi
 # Use find to locate the CSV file
 csv_file_path=$(find "$input_path" -type f -name "*.csv" -print -quit)
 
-# Declare an array to store unique, capitalized file extensions
+# Array to store unique, capitalized file extensions
 capitalized_extensions=()
 
-# Declare a flag to indicate if .exr files are found
+# Flag to indicate if .exr files are found
 exr_files_found=false
 
 # Function to search for .exr files in a directory recursively
@@ -79,7 +78,7 @@ fi
 file_extensions_string="${file_extensions_string% and}"
 result="This package contains$file_extensions_string files."
 
-# Check if the string "ILM Tech Check Approved" is present in the CSV file
+# Check if the string "Tech Check Approved" is present in the CSV file
 if [ "$exr_files_found" == true ] && [ -f "$csv_file_path" ] && grep -q "Tech Check Approved" "$csv_file_path" ; then
   echo "Tech Check send for final submissions."
   send_type=$(echo "final submissions. MOVs were sent in the preceding package.")
@@ -106,11 +105,10 @@ echo "$result"
 
 # Copy Excel for email.
 if [ -f $csv_file_path ] ; then
-  cp $csv_file_path /home/mhartney/Documents/email_drafts/cover_email/
+  cp $csv_file_path /path/to/csv/to/for/delivery
 fi
 
-
-# Get csv message from python script.
+# Get more specific message from python script.
 csvReader_message=$(python3 /home/mhartney/PycharmProjects/pythonProject/csvReader.py "$csv_file_path")  
 
 # Generate email.
@@ -140,7 +138,7 @@ fi
 
 # Send email to me.
 SUB="PDX ILM | $DESC | Submission $PKG"
-mail -s "$SUB" -a /home/mhartney/Documents/email_drafts/cover_email/$PKG.csv mhartney@ilm.com < draft1.txt
+mail -s "$SUB" -a /path/to/outgoing/csv/$PKG.csv mhartney@email.com < draft1.txt
 echo -e "\nEmail draft sent to your inbox.\n"
 
 # Option to send to Client etc.
@@ -148,15 +146,13 @@ echo -e "\nDo you want to send to client? y/n\n" ; read VAR1
 
 if [[ "$VAR1" == "y" ]]; then
   echo "Sending to Client."
-  SUB="PDX ILM | $DESC | Submission $PKG"
-  mail -s "$SUB" -a /home/mhartney/Documents/email_drafts/cover_email/$PKG.csv -c "ilm-paradox@ilm.com mhartney@ilm.com" "paradoxvfx@lflprod.com" < draft1.txt 
+  SUB="COMPANY | $DESC | Submission $PKG"
+  mail -s "$SUB" -a /path/to/outgoing/csv/$PKG.csv -c "email-to-cc@email.com" "email-to-send-to@lflprod.com" < draft1.txt 
   echo -e "\nEmail sent!"
 else
   echo "Cancelled."
 fi
 
 # Spring Cleaning.
-cd /lucas/ilm/home/mhartney/Documents/email_drafts/cover_email/
 rm *.txt
 rm *.csv
-
