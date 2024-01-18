@@ -3,7 +3,7 @@ import sys
 
 if len(sys.argv) != 2:
     print("Enter one argument for program to read csv. ")
-    print("python3 /home/mhartney/PycharmProjects/pythonProject/csvReader.py <path_to_csv>")
+    print("python3 csvReader.py <path_to_csv>")
     sys.exit(1)
 
 # Get csv file from user input on command line.
